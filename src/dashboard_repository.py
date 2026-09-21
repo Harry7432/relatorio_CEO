@@ -9,6 +9,7 @@ def buscar_dados_dashboard() -> list[dict[str, Any]]:
         SELECT
             mensagem.id AS mensagem_id,
             mensagem.session_id AS sessao_id,
+            mensagem.user_id AS usuario_id_mensagem,
             mensagem.timestamp_mensagem,
             mensagem.tipo AS tipo_mensagem,
             mensagem.direcao,
