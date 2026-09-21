@@ -1,3 +1,4 @@
+import logging
 from io import BytesIO
 
 import pandas as pd
@@ -5,7 +6,14 @@ import plotly.express as px
 import streamlit as st
 
 from src.dashboard_repository import buscar_dados_dashboard
+from src.seller_metrics import (
+    ResumoMetricasVendedores,
+    calcular_metricas_vendedores,
+)
 from src.sync_service import executar_sincronizacao_completa
+
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================
@@ -442,6 +450,47 @@ pesquisa_mensagem = st.sidebar.text_input(
 
 
 # ============================================================
+# MÉTRICAS DE UTILIZAÇÃO POR VENDEDOR
+# ============================================================
+
+metricas_vendedores: ResumoMetricasVendedores | None = None
+aviso_metricas_vendedores: str | None = None
+
+if (
+    isinstance(periodo, tuple)
+    and len(periodo) == 2
+):
+    data_inicial_metricas, data_final_metricas = periodo
+
+    if data_inicial_metricas > data_final_metricas:
+        aviso_metricas_vendedores = (
+            "A data inicial deve ser anterior ou igual à data final. "
+            "Corrija o período para visualizar as métricas."
+        )
+    else:
+        try:
+            metricas_vendedores = calcular_metricas_vendedores(
+                df,
+                data_inicial=data_inicial_metricas,
+                data_final=data_final_metricas,
+                canais=canais_selecionados,
+            )
+        except ValueError:
+            logger.exception(
+                "Falha de integridade ao calcular metricas de vendedores"
+            )
+            aviso_metricas_vendedores = (
+                "Não foi possível calcular as métricas de vendedores "
+                "com segurança. Revise os dados do período."
+            )
+else:
+    aviso_metricas_vendedores = (
+        "Selecione as datas inicial e final para visualizar "
+        "as métricas de vendedores."
+    )
+
+
+# ============================================================
 # APLICAÇÃO DOS FILTROS
 # ============================================================
 
@@ -669,7 +718,6 @@ if df_filtrado.empty:
         "Nenhum registro corresponde "
         "aos filtros selecionados."
     )
-    st.stop()
 
 
 # ============================================================
@@ -872,6 +920,63 @@ with aba_visao_geral:
 # ============================================================
 
 with aba_vendedores:
+    st.subheader(
+        "Mensagens enviadas por vendedor"
+    )
+
+    if aviso_metricas_vendedores:
+        st.warning(aviso_metricas_vendedores)
+    elif metricas_vendedores is not None:
+        st.metric(
+            "Mensagens enviadas por vendedores",
+            f"{metricas_vendedores.total_geral:,}".replace(
+                ",",
+                ".",
+            ),
+        )
+
+        if metricas_vendedores.sem_dados:
+            st.info(
+                "Nenhuma mensagem enviada por vendedores "
+                "no período e canal selecionados."
+            )
+        else:
+            tabela_metricas_vendedores = (
+                metricas_vendedores.ranking.copy()
+            )
+            tabela_metricas_vendedores[
+                "participacao_percentual"
+            ] = tabela_metricas_vendedores[
+                "participacao_percentual"
+            ].map(
+                lambda percentual: (
+                    f"{percentual:.1f}%".replace(
+                        ".",
+                        ",",
+                    )
+                )
+            )
+            tabela_metricas_vendedores = (
+                tabela_metricas_vendedores.rename(
+                    columns={
+                        "posicao": "Posição",
+                        "vendedor": "Vendedor",
+                        "mensagens_enviadas":
+                            "Mensagens enviadas",
+                        "participacao_percentual":
+                            "Participação",
+                    }
+                )
+            )
+
+            st.dataframe(
+                tabela_metricas_vendedores,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+    st.divider()
+
     contatos_por_vendedor = (
         df_filtrado[
             [

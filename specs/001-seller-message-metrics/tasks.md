@@ -23,7 +23,7 @@ description: "Implementation tasks for seller message usage metrics"
 
 **Purpose**: Prepare the existing project for automated business-rule tests without adding unrelated tooling.
 
-- [ ] T001 Add a pinned pytest dependency compatible with Python 3.13 to `requirements.txt`, install it in the active environment, and verify `python -m pytest --version` succeeds
+- [X] T001 Add a pinned pytest dependency compatible with Python 3.13 to `requirements.txt`, install it in the active environment, and verify `python -m pytest --version` succeeds
 
 ---
 
@@ -31,7 +31,7 @@ description: "Implementation tasks for seller message usage metrics"
 
 **Purpose**: Expose the persisted sender identity needed by every story without changing schema or synchronization.
 
-- [ ] T002 Add `mensagem.user_id AS usuario_id_mensagem` to the existing dashboard projection in `src/dashboard_repository.py`, preserving all joins and read-only behavior; enforce the model constraint "Deve estar preenchido para comprovar remetente humano; valores vazios excluem automacoes"
+- [X] T002 Add `mensagem.user_id AS usuario_id_mensagem` to the existing dashboard projection in `src/dashboard_repository.py`, preserving all joins and read-only behavior; enforce the model constraint "Deve estar preenchido para comprovar remetente humano; valores vazios excluem automacoes"
 
 **Checkpoint**: The dashboard dataset contains stable message identity, sender identity, direction, date, channel, and the current `vendedor_responsavel`; no migration or synchronization file changed.
 
@@ -45,13 +45,13 @@ description: "Implementation tasks for seller message usage metrics"
 
 ### Tests for User Story 1
 
-- [ ] T003 [US1] Create failing pytest cases in `tests/test_seller_metrics.py` for inclusive period boundaries, exclusion of `FROM_HUB`, exclusion of empty `usuario_id_mensagem`, one count per repeated `mensagem_id`, fallback to `Não identificado`, input immutability, missing message identity, and conflicting duplicate seller assignments; enforce verbatim constraints "Identidade logica usada para deduplicacao; nao pode estar vazia nas mensagens elegiveis", "Somente `TO_HUB` e elegivel para utilizacao do vendedor", and "Duplicatas com o mesmo ID e vendedores conflitantes sao erro de integridade"
+- [X] T003 [US1] Create failing pytest cases in `tests/test_seller_metrics.py` for inclusive period boundaries, exclusion of `FROM_HUB`, exclusion of empty `usuario_id_mensagem`, one count per repeated `mensagem_id`, fallback to `Não identificado`, input immutability, missing message identity, and conflicting duplicate seller assignments; enforce verbatim constraints "Identidade logica usada para deduplicacao; nao pode estar vazia nas mensagens elegiveis", "Somente `TO_HUB` e elegivel para utilizacao do vendedor", and "Duplicatas com o mesmo ID e vendedores conflitantes sao erro de integridade"
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Implement the pure period-based eligibility, integrity validation, deduplication, seller normalization, and per-seller counting function in `src/seller_metrics.py`, returning a stable empty result when no messages qualify and never mutating the input dataframe
-- [ ] T005 [US1] Build the metric input from the unmodified loaded dataframe and the existing inclusive period control in `app.py`, call `src/seller_metrics.py`, and render the basic per-seller sent-message counts in the existing `Vendedores` tab without changing `src/vendedor_service.py` or any synchronization path
-- [ ] T006 [US1] Handle incomplete/invalid periods and aggregation integrity failures in `app.py` with safe user guidance and module logging that excludes message text, personal data, credentials, and payloads; do not display partial metric results after an integrity failure
+- [X] T004 [US1] Implement the pure period-based eligibility, integrity validation, deduplication, seller normalization, and per-seller counting function in `src/seller_metrics.py`, returning a stable empty result when no messages qualify and never mutating the input dataframe
+- [X] T005 [US1] Build the metric input from the unmodified loaded dataframe and the existing inclusive period control in `app.py`, call `src/seller_metrics.py`, and render the basic per-seller sent-message counts in the existing `Vendedores` tab without changing `src/vendedor_service.py` or any synchronization path
+- [X] T006 [US1] Handle incomplete/invalid periods and aggregation integrity failures in `app.py` with safe user guidance and module logging that excludes message text, personal data, credentials, and payloads; do not display partial metric results after an integrity failure
 
 **Checkpoint**: US1 passes `python -m pytest tests/test_seller_metrics.py -q` and the dashboard shows period-based counts that exclude received, automated, and duplicate messages.
 
@@ -65,12 +65,12 @@ description: "Implementation tasks for seller message usage metrics"
 
 ### Tests for User Story 2
 
-- [ ] T007 [US2] Add failing pytest cases in `tests/test_seller_metrics.py` for total reconciliation, full-precision percentage calculation, deterministic sort by count descending then seller ascending, empty-result semantics, and all-unidentified participation; enforce verbatim constraints "Soma exata de `mensagens_enviadas` de todas as linhas", "`mensagens_enviadas / total_geral * 100`, sem arredondamento interno", and "Verdadeiro quando `total_geral == 0`; nao ha percentuais nesse estado"
+- [X] T007 [US2] Add failing pytest cases in `tests/test_seller_metrics.py` for total reconciliation, full-precision percentage calculation, deterministic sort by count descending then seller ascending, empty-result semantics, and all-unidentified participation; enforce verbatim constraints "Soma exata de `mensagens_enviadas` de todas as linhas", "`mensagens_enviadas / total_geral * 100`, sem arredondamento interno", and "Verdadeiro quando `total_geral == 0`; nao ha percentuais nesse estado"
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Extend the result from `src/seller_metrics.py` with `total_geral`, ordered seller rows, full-precision `participacao_percentual`, and presentation position while guaranteeing that row counts reconcile exactly with the total
-- [ ] T009 [US2] Replace the basic US1 presentation in `app.py` with the `Mensagens enviadas por vendedores` total and ranking columns `Posicao`, `Vendedor`, `Mensagens enviadas`, and `Participacao`, formatting percentages to one decimal only at the Streamlit presentation boundary
+- [X] T008 [US2] Extend the result from `src/seller_metrics.py` with `total_geral`, ordered seller rows, full-precision `participacao_percentual`, and presentation position while guaranteeing that row counts reconcile exactly with the total
+- [X] T009 [US2] Replace the basic US1 presentation in `app.py` with the `Mensagens enviadas por vendedores` total and ranking columns `Posicao`, `Vendedor`, `Mensagens enviadas`, and `Participacao`, formatting percentages to one decimal only at the Streamlit presentation boundary
 
 **Checkpoint**: US1 and US2 tests pass, the displayed total equals the sum of all seller rows, and ties remain stable across reruns.
 
@@ -84,12 +84,12 @@ description: "Implementation tasks for seller message usage metrics"
 
 ### Tests for User Story 3
 
-- [ ] T010 [US3] Add failing pytest cases in `tests/test_seller_metrics.py` for no channel selection meaning all channels, one and multiple selected channels, selected channel with no eligible messages, and isolation from unrelated filter columns; enforce the model constraint "Lista vazia significa todos os canais; valores devem vir das opcoes existentes"
+- [X] T010 [US3] Add failing pytest cases in `tests/test_seller_metrics.py` for no channel selection meaning all channels, one and multiple selected channels, selected channel with no eligible messages, and isolation from unrelated filter columns; enforce the model constraint "Lista vazia significa todos os canais; valores devem vir das opcoes existentes"
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Extend the selection accepted by `src/seller_metrics.py` with channel labels, applying period and channel before eligibility and deduplication while preserving the US1 and US2 result contract
-- [ ] T012 [US3] Pass the existing `canais_selecionados` value to the independent metric pipeline in `app.py`, ensure seller/status/type/direction/origin/text filters do not change or suppress this metric, and render total zero plus `Nenhuma mensagem enviada por vendedores no periodo e canal selecionados.` without an empty ranking when no eligible rows exist
+- [X] T011 [US3] Extend the selection accepted by `src/seller_metrics.py` with channel labels, applying period and channel before eligibility and deduplication while preserving the US1 and US2 result contract
+- [X] T012 [US3] Pass the existing `canais_selecionados` value to the independent metric pipeline in `app.py`, ensure seller/status/type/direction/origin/text filters do not change or suppress this metric, and render total zero plus `Nenhuma mensagem enviada por vendedores no periodo e canal selecionados.` without an empty ranking when no eligible rows exist
 
 **Checkpoint**: All three stories pass automated tests and the dashboard metric changes only when period or channel changes.
 
@@ -99,8 +99,8 @@ description: "Implementation tasks for seller message usage metrics"
 
 **Purpose**: Verify the complete feature against its quality, security, and performance contracts.
 
-- [ ] T013 Run `python -m pytest tests/test_seller_metrics.py -q` and a Python syntax check for `app.py`, `src/dashboard_repository.py`, and `src/seller_metrics.py`, resolving only feature-related failures in those files and `tests/test_seller_metrics.py`
-- [ ] T014 Execute every end-to-end and performance scenario in `specs/001-seller-message-metrics/quickstart.md`, confirm updates complete within 5 seconds at normal volume, and append a dated `Validation Results` section to `specs/001-seller-message-metrics/quickstart.md` without recording credentials, message text, or personal data
+- [X] T013 Run `python -m pytest tests/test_seller_metrics.py -q` and a Python syntax check for `app.py`, `src/dashboard_repository.py`, and `src/seller_metrics.py`, resolving only feature-related failures in those files and `tests/test_seller_metrics.py`
+- [X] T014 Execute every end-to-end and performance scenario in `specs/001-seller-message-metrics/quickstart.md`, confirm updates complete within 5 seconds at normal volume, and append a dated `Validation Results` section to `specs/001-seller-message-metrics/quickstart.md` without recording credentials, message text, or personal data
 
 ---
 

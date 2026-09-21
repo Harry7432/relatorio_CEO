@@ -107,3 +107,17 @@ Expected: cada atualizacao conclui em ate 5 segundos.
 - Regras de dados: [data-model.md](./data-model.md)
 - Contrato de interface: [contracts/dashboard-ui.md](./contracts/dashboard-ui.md)
 - Decisoes tecnicas: [research.md](./research.md)
+
+## Validation Results
+
+**Date**: 2026-09-21
+
+- `python -m pytest -q`: 19 tests passed; one pre-existing warning reports that `src/test_database.py::testar_conexao` returns a value instead of asserting.
+- Python compilation succeeded for `app.py`, `src/dashboard_repository.py`, and `src/seller_metrics.py`.
+- Streamlit AppTest loaded the dashboard with no application exceptions and found the seller-message total and ranking.
+- The displayed total matched the sum of `Mensagens enviadas` in the ranking.
+- Changing the unrelated direction filter did not alter the seller-usage metric.
+- A period with no eligible seller messages displayed total zero and the explicit empty-state message.
+- A channel-filter rerun completed in 1.244 seconds, below the 5-second target.
+- Aggregation over the current persisted operational dataset completed in 0.026 seconds, reconciled exactly with the ranking, and retained the `Não identificado` category.
+- Validation output contained only aggregate results; no credentials, message text, identifiers, or personal data were recorded.

@@ -1,5 +1,6 @@
 # Ambiente virtual
 .venv/
+venv/
 
 # Credenciais e variáveis de ambiente
 .env
@@ -8,17 +9,22 @@
 __pycache__/
 *.py[cod]
 *$py.class
+dist/
+*.egg-info/
 
 # Arquivos de log
 *.log
 
 # Configurações locais do VS Code
 .vscode/
+.idea/
 
 # Bancos locais e arquivos temporários
 *.db
 *.sqlite
 *.sqlite3
+*.tmp
+*.swp
 
 # Sistema operacional
 .DS_Store
