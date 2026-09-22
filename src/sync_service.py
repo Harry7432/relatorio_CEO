@@ -99,3 +99,14 @@ def executar_sincronizacao_completa(
             )
 
     return logs
+
+
+def main() -> None:
+    logs = executar_sincronizacao_completa()
+
+    for log in logs:
+        print(log)
+
+
+if __name__ == "__main__":
+    main()
