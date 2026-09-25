@@ -3,6 +3,7 @@ import time
 from typing import Any
 
 from src.botnext_client import BotNextClient
+from src.runtime_security import OperationalErrorCategory, operational_error
 from src.message_repository import (
     listar_sessoes,
     salvar_mensagens,
@@ -51,9 +52,13 @@ def buscar_pagina_com_tentativas(
                 )
             )
 
-        except Exception as erro:
+        except Exception:
             if tentativa == QUANTIDADE_TENTATIVAS:
-                raise
+                raise RuntimeError(
+                    operational_error(
+                        OperationalErrorCategory.BOTNEXT_MESSAGES
+                    )
+                ) from None
 
             espera = tentativa * 5
 
@@ -61,8 +66,7 @@ def buscar_pagina_com_tentativas(
                 "\nFalha temporária. "
                 f"Tentativa {tentativa}/"
                 f"{QUANTIDADE_TENTATIVAS}. "
-                f"Aguardando {espera}s. "
-                f"Erro: {erro}"
+                f"Aguardando {espera}s."
             )
 
             time.sleep(espera)
@@ -166,14 +170,13 @@ def main() -> None:
                         INTERVALO_REQUISICOES
                     )
 
-            except Exception as erro:
+            except Exception:
                 sessoes_com_erro.append(
                     session_id
                 )
 
                 print(
-                    "\nErro na sessão "
-                    f"{session_id}: {erro}"
+                    "\nFalha ao processar uma sessao."
                 )
 
             if (
@@ -219,14 +222,6 @@ def main() -> None:
             f"Sessões com erro: "
             f"{len(sessoes_com_erro)}"
         )
-
-        if sessoes_com_erro:
-            print(
-                "IDs das sessões com erro:"
-            )
-
-            for session_id in sessoes_com_erro:
-                print(f"- {session_id}")
 
     finally:
         cliente.fechar()

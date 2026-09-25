@@ -13,7 +13,7 @@ producao nos cenarios de falha.
 ## 1. Validate Specification Artifacts
 
 ```bash
-docker compose config
+docker compose --env-file .env.example config
 ```
 
 Confirmar na saida:

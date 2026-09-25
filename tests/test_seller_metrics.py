@@ -354,3 +354,19 @@ def test_ignora_colunas_de_filtros_nao_relacionados() -> None:
     )
 
     assert resultado.total_geral == 3
+
+
+def test_runtime_feature_preserves_seller_metrics_contract() -> None:
+    resultado = calcular_metricas_vendedores(
+        criar_mensagens(),
+        data_inicial=date(2026, 9, 1),
+        data_final=date(2026, 9, 30),
+    )
+
+    assert resultado.total_geral == 3
+    assert resultado.ranking["mensagens_enviadas"].sum() == 3
+    assert resultado.ranking["vendedor"].tolist() == [
+        "Alice",
+        "Bruno",
+        "Não identificado",
+    ]

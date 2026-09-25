@@ -195,7 +195,14 @@ def gerar_excel(
 # DADOS INICIAIS
 # ============================================================
 
-df = carregar_dados()
+dashboard_disponivel = True
+
+try:
+    df = carregar_dados()
+except Exception:
+    logger.error("Frontend dashboard indisponivel.")
+    dashboard_disponivel = False
+    df = pd.DataFrame()
 
 
 # ============================================================
@@ -304,23 +311,27 @@ if iniciar_sincronizacao:
         st.cache_data.clear()
         st.rerun()
 
-    except Exception as erro:
+    except Exception:
         barra_progresso.empty()
         mensagem_etapa.empty()
 
+        logger.error("Frontend sincronizacao manual indisponivel.")
         st.error(
-            "Não foi possível concluir a sincronização."
+            "A sincronização manual está indisponível. "
+            "Verifique a configuração e tente novamente."
         )
-
-        with st.expander(
-            "Visualizar detalhes do erro"
-        ):
-            st.code(str(erro))
 
 
 # ============================================================
 # VALIDAÇÃO DOS DADOS
 # ============================================================
+
+if not dashboard_disponivel:
+    st.warning(
+        "O painel está indisponível. "
+        "Verifique a configuração do banco e tente novamente."
+    )
+    st.stop()
 
 if df.empty:
     st.warning(
@@ -476,7 +487,7 @@ if (
                 canais=canais_selecionados,
             )
         except ValueError:
-            logger.exception(
+            logger.error(
                 "Falha de integridade ao calcular metricas de vendedores"
             )
             aviso_metricas_vendedores = (

@@ -1,0 +1,61 @@
+x-app: &app
+  image: relatorio-ceo:${IMAGE_TAG:-local}
+  build:
+    context: .
+    args:
+      SOURCE_REVISION: ${SOURCE_REVISION:-local}
+      DEPENDENCY_LOCK_DIGEST: ${DEPENDENCY_LOCK_DIGEST:-local}
+
+x-runtime-process-contract:
+  role: "`api`, `worker_runner` ou `frontend`."
+  container_command: "Comando long-lived do papel."
+  lifecycle: "`long_lived` para os tres containers."
+  restart_policy: "Reinicia somente o container do papel que encerrou."
+  exposed_port: "API e frontend usam porta interna; worker runner usa `null`."
+  required_configuration: "Apenas nomes das variaveis necessarias ao papel."
+  state: "Estado operacional atual, nao persistido pela aplicacao."
+
+x-api-probes:
+  liveness: http://127.0.0.1:8000/health
+  readiness: http://127.0.0.1:8000/ready
+
+services:
+  api:
+    <<: *app
+    command: python -m uvicorn src.api:app --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-}
+    expose:
+      - "8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=1)"
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 10s
+
+  worker-runner:
+    <<: *app
+    command: python -c "from threading import Event; Event().wait()"
+    restart: unless-stopped
+    environment:
+      BOTNEXT_CHANNEL_IDS: ${BOTNEXT_CHANNEL_IDS:-}
+      BOTNEXT_TOKEN: ${BOTNEXT_TOKEN:-}
+      DATABASE_URL: ${DATABASE_URL:-}
+      DB_SCHEMA: ${DB_SCHEMA:-app}
+  frontend:
+    <<: *app
+    command: python -m streamlit run app.py --server.address=0.0.0.0 --server.port=8501
+    restart: unless-stopped
+    environment:
+      BOTNEXT_CHANNEL_IDS: ${BOTNEXT_CHANNEL_IDS:-}
+      BOTNEXT_TOKEN: ${BOTNEXT_TOKEN:-}
+      DATABASE_URL: ${DATABASE_URL:-}
+      DB_SCHEMA: ${DB_SCHEMA:-app}
+    expose:
+      - "8501"

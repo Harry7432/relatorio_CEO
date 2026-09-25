@@ -5,6 +5,8 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
+from src.runtime_security import OperationalErrorCategory, operational_error
+
 
 RAIZ_PROJETO = Path(__file__).resolve().parent.parent
 
@@ -47,18 +49,13 @@ def executar_modulo(
     )
 
     if resultado.returncode != 0:
-        detalhes = (
-            resultado.stderr.strip()
-            or resultado.stdout.strip()
-            or "Nenhum detalhe retornado."
-        )
-
         raise RuntimeError(
-            f"Falha ao executar {modulo}:\n"
-            f"{detalhes[-4000:]}"
+            operational_error(
+                OperationalErrorCategory.SYNCHRONIZATION_STAGE
+            )
         )
 
-    return resultado.stdout
+    return "Etapa concluida com sucesso."
 
 
 def executar_sincronizacao_completa(
