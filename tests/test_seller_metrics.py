@@ -370,3 +370,14 @@ def test_runtime_feature_preserves_seller_metrics_contract() -> None:
         "Bruno",
         "Não identificado",
     ]
+
+
+def test_schedule_daily_sync_preserves_schema_and_metrics_contract() -> None:
+    from src.database import DB_SCHEMA
+    assert isinstance(DB_SCHEMA, str) and len(DB_SCHEMA) > 0
+    resultado = calcular_metricas_vendedores(
+        criar_mensagens(),
+        data_inicial=date(2026, 9, 1),
+        data_final=date(2026, 9, 30),
+    )
+    assert resultado.total_geral == 3

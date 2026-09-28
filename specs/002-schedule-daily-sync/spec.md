@@ -1,125 +1,52 @@
-# Feature Specification: Sincronizacao automatica diaria
+# Feature Specification: Sincronização Automática Diária
 
-**Feature Branch**: `main`
+**Feature Branch**: `002-schedule-daily-sync`
+**Status**: Draft / Ready for Agent
 
-**Created**: 2026-09-21
+## Problem Statement
 
-**Status**: Draft
+O CEO e a equipe comercial precisam de um dashboard com dados analíticos atualizados diariamente sobre **vendedores**, **sessões**, **contatos** e **mensagens**. Atualmente, a **sincronização** dos dados depende da execução manual ou do acionamento via frontend (Streamlit), o que introduz dependência operacional humana, risco de desatualização dos dados operacionais do **Hub** (BotNext) e possibilidade de execuções concorrentes indesejadas se múltiplos operadores dispararem a sincronização simultaneamente.
 
-**Input**: User description: "Executar automaticamente a sincronizacao completa todos os dias as 00:00 no ambiente de producao, sem depender do frontend, impedindo concorrencia e mantendo logs rastreaveis."
+## Solution
 
-## User Scenarios & Testing *(mandatory)*
+Implementar a automação da **sincronização** diária no ambiente de produção através do agendador/cron nativo da infraestrutura (Coolify), programado para executar exatamente `python -m src.sync_service` às 00:00 no fuso horário `America/Sao_Paulo` (configurado via ambiente do container/job `TZ=America/Sao_Paulo`). O processo Worker é um job finito e opera de forma totalmente independente do frontend Streamlit e da API FastAPI. TODAS as formas de execução (agendada via Coolify, manual via Streamlit ou CLI) são obrigatoriamente protegidas por **PostgreSQL Advisory Lock**, garantindo exclusão mútua distribuída durante toda a execução. Cada invocação gera um `run_id` único e registra logs estruturados no `stdout` sanitizados por `runtime_security`, sem expor dados sensíveis ou alterar o schema do banco.
 
-### User Story 1 - Manter dados atualizados diariamente (Priority: P1)
+## User Stories
 
-Como CEO, quero que a sincronizacao completa seja executada automaticamente todos os dias no servidor para que o dashboard use dados atualizados sem depender de uma pessoa ou computador conectado.
+1. As a CEO, I want the complete daily synchronization to execute automatically at 00:00 (America/Sao_Paulo) via the Coolify infrastructure scheduler, so that executive metrics and seller reports are always fresh without requiring manual intervention or continuous Python loops.
+2. As a CEO, I want synchronization to run independently of the Streamlit frontend and FastAPI probes, so that system restarts or closed browser sessions do not interrupt scheduled data ingestion.
+3. As an operator, I want manual synchronization triggers (Streamlit or CLI) to respect background scheduled executions, so that duplicate or overlapping sync jobs do not overload the BotNext API or produce race conditions.
+4. As an operator, I want automated scheduled sync jobs to respect active manual sync jobs, so that an ongoing manual sync is not disrupted by a scheduled midnight run.
+5. As an operator, I want clear execution logs containing `run_id`, start time, end time, duration, and status (success, failure, skipped due to concurrency) in `stdout`, so that I can audit sync health in under 2 minutes.
+6. As a security officer, I want all sync failure and operational logs to be sanitized of tokens, passphrases, and message content, so that security standards and sensitive data isolation rules are preserved.
+7. As a data engineer, I want process terminations or crashes to release the PostgreSQL advisory lock naturally via session disconnection, so that subsequent daily runs or manual retries are never permanently blocked.
+8. As a data engineer, I want incremental sync operations for users, contacts, sessions, and messages to remain strictly idempotent, so that re-running or retrying synchronization never creates duplicate DB records.
 
-**Why this priority**: Esta e a finalidade central da feature e elimina a dependencia operacional que atualmente pode deixar o banco desatualizado.
+## Implementation Decisions
 
-**Independent Test**: Pode ser testada mantendo o frontend desligado durante o horario programado e verificando que uma execucao completa foi iniciada no servidor, concluida e refletida nos dados persistidos.
+- **Infrastructure Scheduler Integration**: O agendamento de produção é de responsabilidade do scheduler/cron do Coolify, que invoca `python -m src.sync_service` às 00:00 com a variável de ambiente `TZ=America/Sao_Paulo`. Não é criado nenhum loop Python permanente em `src/scheduler.py`.
+- **Worker Execution Architecture**: O worker permanece um job finito acionado por `python -m src.sync_service`, desacoplado da API FastAPI (`src/api.py`) e do Streamlit (`app.py`).
+- **Distributed Advisory Lock**: Utilização de PostgreSQL Advisory Lock de sessão (`pg_try_advisory_lock`), mantido durante toda a execução do processo `sync_service`. O lock protege TODAS as formas de disparo (agendado ou manual). Tentativas concorrentes são recusadas deterministicamente (`status=skipped_concurrency`) e encerram com exit code 0. Quedas de processo liberam a trava naturalmente pelo encerramento da conexão PostgreSQL.
+- **Run ID & Structured Logging**: Cada invocação gera um `run_id` único e escreve logs em `stdout` no formato `[SYNC_RUN] run_id=... status=...`, sanitizados via `runtime_security.py`.
+- **Exit Code Semantics**: Falha total ou parcial nas etapas de sincronização resulta em exceção lançada e exit code != 0. Falhas em um dia não afetam a invocação do job do dia seguinte.
+- **Zero Schema Change**: Nenhuma alteração DDL, migration ou mudança em métricas de vendedor.
 
-**Acceptance Scenarios**:
+## Testing Decisions
 
-1. **Given** que o ambiente de producao esta disponivel e o frontend esta desligado, **When** chega 00:00 no fuso de Sao Paulo, **Then** uma sincronizacao completa e iniciada automaticamente no servidor.
-2. **Given** que a fonte possui dados novos e a execucao termina com sucesso, **When** o CEO consulta o dashboard depois da sincronizacao, **Then** os dados diarios atualizados estao disponiveis.
-3. **Given** que nao existem dados novos na fonte, **When** a sincronizacao diaria termina sem erros, **Then** a execucao e registrada como concluida e os dados existentes permanecem consistentes.
+- **Testing Philosophy**: Testar o comportamento externo nos limites mais altos da aplicação sem expor dados sensíveis ou acoplar a detalhes de implementação interna.
+- **Primary Testing Seam**: 
+  - `src.sync_service.executar_sincronizacao_completa` e `src.sync_lock` como as costuras principais para validação de concorrência, retivas de lock, exit codes e idempotência.
+  - `tests/test_sync_concurrency.py` e `tests/test_sync_lock.py` para simulação de processos concorrentes e comportamento de liberação em quedas.
+- **Prior Art**: 
+  - `tests/test_sync_service.py` (validação de fluxo de etapas, logs estruturados e exceções de sincronização).
+  - `tests/test_runtime_security.py` (validação de sanitização).
 
----
+## Out of Scope
 
-### User Story 2 - Acompanhar resultado e falhas (Priority: P2)
+- Loop Python residente em memória/daemon para agendamento (o agendamento é delegado ao Coolify).
+- Modificações de schema DDL ou tabelas adicionais.
+- Alertas externos via E-mail/Slack/PagerDuty.
 
-Como operador, quero identificar quando cada sincronizacao iniciou, terminou e qual foi seu resultado para diagnosticar rapidamente falhas completas ou parciais.
+## Further Notes
 
-**Why this priority**: A automacao sem rastreabilidade pode falhar silenciosamente e comprometer a confianca nos indicadores do dashboard.
-
-**Independent Test**: Pode ser testada executando um caso bem-sucedido e um caso com falha controlada, verificando que os registros informam inicio, fim, duracao, resultado e etapa afetada sem expor dados sensiveis.
-
-**Acceptance Scenarios**:
-
-1. **Given** uma sincronizacao concluida com sucesso, **When** o operador consulta os registros da execucao, **Then** encontra inicio, fim, duracao, resultado final e confirmacao das etapas executadas.
-2. **Given** uma falha durante qualquer etapa, **When** o operador consulta os registros, **Then** identifica a execucao, a etapa afetada e o erro relevante sem encontrar credenciais ou dados sensiveis.
-3. **Given** uma execucao que falhou hoje, **When** chega o horario programado do dia seguinte, **Then** uma nova tentativa e iniciada normalmente.
-
----
-
-### User Story 3 - Executar manualmente sem concorrencia (Priority: P3)
-
-Como operador, quero continuar iniciando a mesma sincronizacao manualmente quando necessario sem permitir que ela concorra com uma execucao automatica.
-
-**Why this priority**: A operacao manual continua necessaria para recuperacao e verificacao, mas execucoes sobrepostas podem gerar carga desnecessaria e resultados dificeis de interpretar.
-
-**Independent Test**: Pode ser testada iniciando uma execucao e tentando iniciar outra, manual ou automatica, antes do termino; somente a primeira deve prosseguir e a segunda deve ser registrada como ignorada por concorrencia.
-
-**Acceptance Scenarios**:
-
-1. **Given** que nao ha sincronizacao em andamento, **When** o operador inicia uma execucao manual, **Then** a mesma operacao completa usada pelo agendamento e executada.
-2. **Given** que uma sincronizacao automatica esta em andamento, **When** uma execucao manual e solicitada, **Then** a segunda execucao nao inicia e o motivo fica registrado.
-3. **Given** que uma sincronizacao manual esta em andamento, **When** chega o horario automatico, **Then** nao ocorre sobreposicao e a tentativa automatica fica registrada como ignorada.
-
----
-
-### Edge Cases
-
-- Se uma execucao ainda estiver ativa no horario do dia seguinte, a nova tentativa nao deve concorrer e deve ser registrada como ignorada.
-- Se o processo terminar inesperadamente, o mecanismo de exclusao nao deve permanecer bloqueado indefinidamente.
-- Se o servidor reiniciar proximo de 00:00, a ocorrencia ou ausencia da execucao deve ser verificavel nos registros.
-- Mudancas de deslocamento horario devem continuar respeitando 00:00 no fuso de Sao Paulo.
-- Se uma etapa falhar depois de etapas anteriores terem persistido dados, o resultado deve indicar execucao parcial ou falha e identificar a etapa afetada.
-- Se a fonte externa estiver indisponivel, a falha deve encerrar a tentativa atual sem impedir o agendamento futuro.
-- Se uma solicitacao manual e automatica chegarem simultaneamente, apenas uma deve adquirir o direito de executar.
-- Se nao houver dados novos, a execucao deve terminar com sucesso sem criar registros duplicados.
-
-## Requirements *(mandatory)*
-
-### Functional Requirements
-
-- **FR-001**: O sistema MUST iniciar uma sincronizacao completa automaticamente todos os dias as 00:00 no horario local de Sao Paulo.
-- **FR-002**: O agendamento MUST interpretar o horario pelo fuso `America/Sao_Paulo`, inclusive quando houver mudanca de deslocamento horario.
-- **FR-003**: A execucao automatica MUST ocorrer no ambiente hospedado de producao sem depender de navegador, frontend ativo, computador local ou usuario conectado.
-- **FR-004**: A execucao automatica MUST reutilizar a mesma operacao completa disponivel para execucao manual.
-- **FR-005**: O sistema MUST manter a execucao manual disponivel independentemente do agendamento diario.
-- **FR-006**: O sistema MUST garantir que no maximo uma sincronizacao completa esteja ativa por vez no ambiente de producao.
-- **FR-007**: O controle de concorrencia MUST abranger execucoes manuais e automaticas.
-- **FR-008**: Uma tentativa iniciada enquanto outra sincronizacao estiver ativa MUST ser impedida de executar e registrada como ignorada por concorrencia.
-- **FR-009**: O controle de concorrencia MUST ser liberado apos sucesso, falha ou encerramento inesperado, sem bloquear indefinidamente execucoes futuras.
-- **FR-010**: Cada tentativa MUST registrar horario de inicio, horario de fim, duracao e resultado final.
-- **FR-011**: O resultado final MUST distinguir pelo menos sucesso, falha, conclusao parcial e tentativa ignorada por concorrencia.
-- **FR-012**: Os registros MUST permitir identificar as etapas iniciadas, concluidas e afetadas por falha.
-- **FR-013**: Falhas MUST ser registradas com contexto suficiente para diagnostico, sem incluir credenciais, tokens, connection strings, conteudo de mensagens ou outros dados sensiveis.
-- **FR-014**: Uma execucao com falha MUST terminar sem impedir a tentativa automatica programada para o dia seguinte.
-- **FR-015**: A sincronizacao diaria e eventuais repeticoes manuais MUST preservar a ausencia de duplicidades nos dados persistidos.
-- **FR-016**: A feature MUST reutilizar a ordem e o comportamento das etapas atuais de sincronizacao, salvo mudanca minima necessaria para concorrencia e rastreabilidade.
-- **FR-017**: A feature MUST operar sem nova tabela ou alteracao de schema, a menos que o planejamento demonstre necessidade concreta e registre explicitamente a mudanca.
-- **FR-018**: A indisponibilidade do frontend MUST NOT impedir, pausar ou cancelar a execucao automatica.
-- **FR-019**: O sistema MUST programar uma tentativa por dia; repeticoes automaticas no mesmo dia ficam fora do escopo inicial.
-
-### Key Entities *(include if feature involves data)*
-
-- **Agenda de sincronizacao**: Regra recorrente que define 00:00 no fuso de Sao Paulo como horario diario de inicio.
-- **Execucao de sincronizacao**: Uma tentativa manual ou automatica, com origem, inicio, fim, duracao, resultado e etapas percorridas.
-- **Controle de concorrencia**: Direito exclusivo e temporario de executar a sincronizacao completa no ambiente de producao.
-- **Registro de execucao**: Evidencia operacional usada para confirmar sucesso, diagnosticar falha ou explicar por que uma tentativa foi ignorada.
-
-## Success Criteria *(mandatory)*
-
-### Measurable Outcomes
-
-- **SC-001**: Em uma observacao de 30 dias com o ambiente disponivel, 100% das tentativas diarias sao iniciadas entre 00:00 e 00:05 no horario de Sao Paulo.
-- **SC-002**: Em testes com solicitacoes simultaneas manuais e automaticas, zero pares de sincronizacoes executam de forma sobreposta.
-- **SC-003**: Em 100% das tentativas, o operador consegue consultar inicio, fim, duracao e resultado final nos registros operacionais.
-- **SC-004**: Em teste com o frontend desligado, a sincronizacao automatica inicia e conclui sem intervencao humana.
-- **SC-005**: Apos uma falha controlada, a tentativa programada para o dia seguinte inicia sem desbloqueio manual.
-- **SC-006**: Em conjuntos de validacao com repeticao da mesma sincronizacao, a quantidade de registros unicos permanece consistente e nenhuma identidade persistente e duplicada.
-- **SC-007**: Em pelo menos 95% dos testes operacionais, um operador identifica em menos de 2 minutos se a ultima execucao teve sucesso, falha, conclusao parcial ou foi ignorada.
-- **SC-008**: Quando a fonte disponibiliza dados novos e a execucao termina com sucesso, os dados correspondentes ficam disponiveis no dashboard no mesmo ciclo diario.
-
-## Assumptions
-
-- O ambiente de producao atual oferece agendamento recorrente e preserva os registros de saida das execucoes.
-- O fuso oficial do agendamento e `America/Sao_Paulo`, independentemente do fuso padrao do servidor.
-- A operacao completa atual permanece como fonte unica para execucoes manuais e automaticas.
-- As operacoes de persistencia existentes continuam idempotentes para identidades ja sincronizadas.
-- Uma tentativa automatica e feita por dia; retry automatico, alertas externos e escalonamento ficam fora do escopo inicial.
-- O tempo normal de uma sincronizacao completa e inferior a 24 horas.
-- As mesmas configuracoes seguras de acesso a fonte e ao banco estao disponiveis para o processo agendado no ambiente hospedado.
-- A plataforma de producao atual e o Coolify; a escolha do recurso especifico de agendamento sera definida no planejamento tecnico.
+- Alinhado com o dicionário ubíquo em `CONTEXT.md` e com a arquitetura de runtime de produção do ADR `docs/adr/0001-production-runtime-architecture.md`.
