@@ -1,0 +1,99 @@
+openapi: 3.1.0
+info:
+  title: relatorio_CEO Runtime API
+  version: 1.0.0
+  description: >-
+    Contrato estatico dos probes de producao. A aplicacao nao publica o documento
+    OpenAPI nem interfaces de documentacao em runtime.
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Confirma que o processo HTTP esta vivo
+      responses:
+        "200":
+          description: O processo esta vivo e respondendo.
+          headers:
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              examples:
+                ok:
+                  value:
+                    status: ok
+        "405":
+          description: Metodo nao suportado para o probe.
+  /ready:
+    get:
+      operationId: readiness
+      summary: Confirma configuracao e conectividade obrigatorias
+      responses:
+        "200":
+          description: A API esta pronta para receber trafego.
+          headers:
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadyResponse"
+              examples:
+                ready:
+                  value:
+                    status: ready
+        "503":
+          description: A API esta viva, mas ainda nao esta pronta.
+          headers:
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotReadyResponse"
+              examples:
+                notReady:
+                  value:
+                    status: not_ready
+        "405":
+          description: Metodo nao suportado para o probe.
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          const: ok
+    ReadyResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          const: ready
+    NotReadyResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          const: not_ready

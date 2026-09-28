@@ -52,7 +52,7 @@ BOTNEXT_CHANNEL_IDS = [
 def validar_configuracoes_banco() -> None:
     if not DATABASE_URL:
         raise ValueError(
-            "DATABASE_URL não foi preenchida no arquivo .env."
+            "Configuracao ausente: DATABASE_URL."
         )
 
     schema_valido = re.fullmatch(
@@ -62,19 +62,19 @@ def validar_configuracoes_banco() -> None:
 
     if not schema_valido:
         raise ValueError(
-            f"O nome do esquema é inválido: {DB_SCHEMA}"
+            "Configuracao invalida: DB_SCHEMA."
         )
 
 
 def validar_configuracoes_botnext() -> None:
     if not BOTNEXT_TOKEN:
         raise ValueError(
-            "BOTNEXT_TOKEN não foi preenchido no arquivo .env."
+            "Configuracao ausente: BOTNEXT_TOKEN."
         )
 
     if not BOTNEXT_CHANNEL_IDS:
         raise ValueError(
-            "BOTNEXT_CHANNEL_IDS não foi preenchido no arquivo .env."
+            "Configuracao ausente: BOTNEXT_CHANNEL_IDS."
         )
 
     if PAGE_SIZE < 1 or PAGE_SIZE > 100:

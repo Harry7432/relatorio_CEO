@@ -1,65 +1,75 @@
 ---
 name: to-spec
-description: >-
-  Use this skill when converting requirements, user requests, or Wayfinder investigation maps into a formal, structured specification set inside specs/XXX-feature/.
+description: "Turn the current conversation into a spec and publish it to the project issue tracker: no interview, just synthesis of what you've already discussed."
+disable-model-invocation: true
 ---
 
-# To-Spec Workflow
+This skill takes the current conversation context and codebase understanding and produces a spec. Do NOT interview the user; just synthesize what you already know.
 
-The `to-spec` skill transforms raw requirements, feature requests, or exploration notes into a rigorous, standard specification package. It establishes clear scope, acceptance criteria, technical design, and validation requirements before code execution.
+The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.
 
----
+## Process
 
-## 1. Specification Artifact Package
+1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the spec, and respect any ADRs in the area you're touching.
 
-Every feature specification created with `to-spec` MUST reside in `specs/XXX-feature/` and include four core files:
+2. Sketch out the seams at which you're going to test the feature. Existing seams should be preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better - the ideal number is one.
 
-```text
-specs/XXX-feature/
-├── spec.md          # User stories, requirements, acceptance criteria & non-goals
-├── plan.md          # Technical approach, architecture impact & phase breakdown
-├── tasks.md         # Granular, ordered task list with story tags & checkpoints
-└── validation.md    # Test execution evidence, runtime verification & deploy gates
-```
+Check with the user that these seams match their expectations.
 
----
+3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
 
-## 2. Step-by-Step Workflow
+<spec-template>
 
-### Step 1: Directory Setup
-1. Identify the next feature number (e.g., `004-new-feature`).
-2. Create the directory `specs/00X-feature/`.
+## Problem Statement
 
-### Step 2: Draft `spec.md`
-Define the functional and non-functional requirements:
-- **Title & Overview**: Clear feature goal and business value.
-- **User Stories**: Prioritized list (P1, P2, P3) with specific acceptance criteria.
-- **Domain Alignment**: Verify all terms match `CONTEXT.md`. If new terms are needed, trigger `/domain-modeling`.
-- **Non-Goals & Constraints**: Explicitly list out-of-scope items and security/isolation constraints.
+The problem that the user is facing, from the user's perspective.
 
-### Step 3: Draft `plan.md`
-Define the technical strategy:
-- **Architecture Impact**: Affected modules (`src/`, `tests/`, `app.py`, `compose.yaml`).
-- **Data Model & Schemas**: Verify if database changes are needed. (Zero-migration rule unless explicitly planned).
-- **Security & Redaction**: Ensure sensitive values (DSNs, passwords, phones) are sanitized.
-- **Phase Breakdown**: Setup, Foundational, User Stories, and Polish phases.
+## Solution
 
-### Step 4: Draft `tasks.md`
-Slice the plan into actionable tasks:
-- Format: `- [ ] T001 [P?] [Story] Task description with exact target files`
-- Tag parallelable tasks with `[P]`.
-- Include clear checkpoints after each user story phase.
+The solution to the problem, from the user's perspective.
 
-### Step 5: Draft `validation.md`
-Establish verification requirements:
-- Command line execution strings (e.g., `.venv\Scripts\python.exe -m pytest`).
-- Required pass counts and evidence templates.
-- Explicit production deployment gate status.
+## User Stories
 
----
+A LONG, numbered list of user stories. Each user story should be in the format of:
 
-## 3. Quality & Completeness Rules
+1. As an <actor>, I want a <feature>, so that <benefit>
 
-- Do not start writing application code during `to-spec`.
-- Ensure all stories have measurable acceptance criteria.
-- Maintain absolute alignment with `AGENTS.md` rules and existing ADRs in `docs/adr/`.
+<user-story-example>
+1. As a mobile bank customer, I want to see balance on my accounts, so that I can make better informed decisions about my spending
+</user-story-example>
+
+This list of user stories should be extremely extensive and cover all aspects of the feature.
+
+## Implementation Decisions
+
+A list of implementation decisions that were made. This can include:
+
+- The modules that will be built/modified
+- The interfaces of those modules that will be modified
+- Technical clarifications from the developer
+- Architectural decisions
+- Schema changes
+- API contracts
+- Specific interactions
+
+Do NOT include specific file paths or code snippets. They may end up being outdated very quickly.
+
+Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts, not a working demo, just the important bits.
+
+## Testing Decisions
+
+A list of testing decisions that were made. Include:
+
+- A description of what makes a good test (only test external behavior, not implementation details)
+- Which modules will be tested
+- Prior art for the tests (i.e. similar types of tests in the codebase)
+
+## Out of Scope
+
+A description of the things that are out of scope for this spec.
+
+## Further Notes
+
+Any further notes about the feature.
+
+</spec-template>

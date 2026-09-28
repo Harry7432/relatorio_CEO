@@ -1,74 +1,38 @@
 ---
 name: tdd
-description: >-
-  Use this skill when developing new features or fixing bugs using Test-Driven Development (Red -> Green -> Refactor).
-  Enforces writing failing tests before writing production implementation.
+description: Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests.
 ---
 
-# TDD (Test-Driven Development) Workflow
+# Test-Driven Development
 
-The `tdd` skill enforces the strict Test-Driven Development cycle (*Red -> Green -> Refactor*). It ensures that no production code is written without a pre-existing, failing test that defines the expected behavior.
+TDD is the red → green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle: consult them before and during the loop, not after.
 
----
+When exploring the codebase, read `CONTEXT.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
 
-## 1. The Three Rules of TDD
+## What a good test is
 
-1. **Write NO production code** except to pass a failing unit/integration test.
-2. **Write NO more of a test** than is sufficient to fail (compilation/import failures count as failures).
-3. **Write NO more production code** than is sufficient to pass the one failing test.
+Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification: "user can checkout with valid cart" tells you exactly what capability exists, and it survives refactors because it doesn't care about internal structure.
 
----
+See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking guidelines.
 
-## 2. The Red -> Green -> Refactor Cycle
+## Seams: where tests go
 
-```text
-  +---------------------------------------------------+
-  |                                                   |
-  v                                                   |
-[ RED ] ---> Run Test (Must Fail)                     |
-  |                                                   |
-  v                                                   |
-[ GREEN ] -> Write Minimal Code -> Run Test (Passes)  |
-  |                                                   |
-  v                                                   |
-[ REFACTOR ] -> Clean Code/Tests -> Re-verify (Passes)+
-```
+A **seam** is the public boundary you test at: the interface where you observe behavior without reaching inside. Tests live at seams, never against internals.
 
----
+**Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam. You can't test everything, so agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
 
-## 3. Step-by-Step Execution Guide
+Ask: "What's the public interface, and which seams should we test?"
 
-### Phase 1: RED (Write Failing Test)
-1. Locate or create the target test file in `tests/` (e.g., `tests/test_runtime_api.py`).
-2. Write a precise test function specifying the expected contract, assertions, or response formats.
-3. Execute pytest:
-   ```powershell
-   .venv\Scripts\python.exe -m pytest tests/test_target.py -k test_name -vv
-   ```
-4. **VERIFY**: The test MUST fail. Read the failure output and stack trace to ensure it fails for the *right reason* (missing feature, assertion mismatch), not a syntax error.
+When the shape of that interface is itself in question (how deep the module is, where the seam belongs, what the interface should expose), call the Skill tool with "codebase-design" for the vocabulary. It is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms, and it is a reference to consult, not a session to run.
 
-### Phase 2: GREEN (Make Test Pass)
-1. Write the minimal amount of code in `src/` needed to make the test pass.
-2. Avoid over-engineering or implementing future requirements prematurely.
-3. Re-run pytest:
-   ```powershell
-   .venv\Scripts\python.exe -m pytest tests/test_target.py -k test_name -vv
-   ```
-4. **VERIFY**: The test MUST pass with exit code 0.
+## Anti-patterns
 
-### Phase 3: REFACTOR (Improve Code Quality)
-1. Clean up duplicated code, improve variable names, and ensure sensitive data redaction (`src/runtime_security.py`).
-2. Ensure domain terms align with `CONTEXT.md`.
-3. Re-run the full test suite to confirm no regressions:
-   ```powershell
-   .venv\Scripts\python.exe -m pytest
-   ```
+- **Implementation-coupled**: mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.
+- **Tautological**: the assertion recomputes the expected value the way the code does (`expect(add(a, b)).toBe(a + b)`, a snapshot derived by hand the same way, a constant asserted equal to itself), so it passes by construction and can never disagree with the code. Expected values must come from an independent source of truth: a known-good literal, a worked example, the spec.
+- **Horizontal slicing**: writing all tests first, then all implementation. Bulk tests verify _imagined_ behavior: you test the _shape_ of things rather than user-facing behavior, the tests go insensitive to real changes, and you commit to test structure before understanding the implementation. Work in **vertical slices** instead: one test → one implementation → repeat, each test a **tracer bullet** that responds to what the last cycle taught you.
 
----
+## Rules of the loop
 
-## 4. Anti-Patterns & Prohibitions
-
-- ❌ Writing production code first and tests afterwards.
-- ❌ Testing implementation details instead of public behavior and contracts.
-- ❌ Ignoring warnings or suppressing exceptions to force a pass.
-- ❌ Deleting or commenting out existing tests to mask regressions.
+- **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
+- **One slice at a time.** One seam, one test, one minimal implementation per cycle.
+- **Refactoring is not part of the loop.** It belongs to the review stage (see the `code-review` skill), not the red → green implementation cycle.

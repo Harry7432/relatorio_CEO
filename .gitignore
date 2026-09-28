@@ -3,7 +3,8 @@
 venv/
 
 # Credenciais e variáveis de ambiente
-.env
+.env*
+!.env.example
 
 # Cache do Python
 __pycache__/

@@ -1,67 +1,74 @@
 ---
 name: domain-modeling
-description: >-
-  Use this skill when defining, refining, or challenging domain terminology, bounded contexts, ubiquitous language in CONTEXT.md, or recording architectural decisions in docs/adr/.
+description: Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a CONTEXT.md, or recording or editing an ADR.
 ---
 
-# Domain Modeling Workflow
+# Domain Modeling
 
-The `domain-modeling` skill maintains the integrity of the project's ubiquitous language, domain boundaries, and architectural decision records. It prevents term drift, resolves naming ambiguity, and documents durable design choices.
+Actively build and sharpen the project's domain model as you design. This is the *active* discipline: challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. (Merely *reading* `CONTEXT.md` for vocabulary is not this skill: that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)
 
----
+## File structure
 
-## 1. Core Principles
+Most repos have a single context:
 
-1. **Ubiquitous Language**: Every domain concept used in code, issue titles, test names, and specifications MUST match the canonical terms defined in `CONTEXT.md`.
-2. **Single Source of Truth**: The project uses a single-context model centered on `CONTEXT.md` at the repository root.
-3. **Durable Architecture Decisions**: Structural choices, trade-offs, and technology selection MUST be documented as ADRs in `docs/adr/`.
+```
+/
+├── CONTEXT.md
+├── docs/
+│   └── adr/
+│       ├── 0001-event-sourced-orders.md
+│       └── 0002-postgres-for-write-model.md
+└── src/
+```
 
----
+If a `CONTEXT-MAP.md` exists at the root, the repo has multiple contexts. The map points to where each one lives:
 
-## 2. When to Invoke Domain Modeling
+```
+/
+├── CONTEXT-MAP.md
+├── docs/
+│   └── adr/                          ← system-wide decisions
+├── src/
+│   ├── ordering/
+│   │   ├── CONTEXT.md
+│   │   └── docs/adr/                 ← context-specific decisions
+│   └── billing/
+│       ├── CONTEXT.md
+│       └── docs/adr/
+```
 
-Trigger this skill whenever:
-- A new business concept, entity, or process is introduced into the project.
-- Multiple conflicting terms are being used for the same concept (e.g., "ticket" vs "sessão", "atendente" vs "vendedor").
-- An architectural decision is made (e.g., adopting a new database strategy, isolation model, or authentication pattern).
-- An output or specification contradicts an existing ADR in `docs/adr/`.
+Create files lazily: only when you have something to write. If no `CONTEXT.md` exists, create one when the first term is resolved. If no `docs/adr/` exists, create it when the first ADR is needed.
 
----
+## During the session
 
-## 3. Workflow Steps
+### Challenge against the glossary
 
-### Step 1: Challenge Terminology
-1. Check `CONTEXT.md` for existing definitions.
-2. If a proposed term conflicts with `CONTEXT.md`, challenge it:
-   > *The term "ticket" is used in this proposal, but CONTEXT.md explicitly defines this as "Sessão". Updating proposal to align with ubiquitous language.*
-3. If a term is missing from `CONTEXT.md`, determine if it represents a genuine new domain concept or a synonym that should be avoided.
+When the user uses a term that conflicts with the existing language in `CONTEXT.md`, call it out immediately. "Your glossary defines 'cancellation' as X, but you seem to mean Y. Which is it?"
 
-### Step 2: Update `CONTEXT.md`
-When a new domain term or boundary is agreed upon:
-1. Open `CONTEXT.md`.
-2. Add the term, definition, and explicit "avoid" synonyms to the Glossary table:
-   ```markdown
-   | Termo | Definição no Domínio | Termos a Evitar |
-   | :--- | :--- | :--- |
-   | **[Novo Termo]** | [Definição precisa] | *[Sinônimo 1]*, *[Sinônimo 2]* |
-   ```
+### Sharpen fuzzy language
 
-### Step 3: Record Architectural Decisions (ADR)
-When making an architectural or design choice:
-1. Determine the next sequential number in `docs/adr/` (e.g., `docs/adr/0002-title.md`).
-2. Copy the structure from `docs/adr/0000-template.md`.
-3. Fill out the ADR fields completely:
-   - **Status**: [Proposto | Aceito | Substituído]
-   - **Contexto e Problema**: Requirements, constraints, and operational context.
-   - **Decisão Considerada**: Chosen architecture and rationale.
-   - **Consequências**: Positive outcomes and trade-offs/risks.
-4. Save the file and reference it in specifications or relevant PRs.
+When the user uses vague or overloaded terms, propose a precise canonical term. "You're saying 'account': do you mean the Customer or the User? Those are different things."
 
----
+### Discuss concrete scenarios
 
-## 4. Conflict Resolution Protocol
+When domain relationships are being discussed, stress-test them with specific scenarios. Invent scenarios that probe edge cases and force the user to be precise about the boundaries between concepts.
 
-If new work contradicts an existing ADR:
-1. Surface the contradiction explicitly:
-   > ⚠️ *Attention: This change contradicts ADR-0001 (Production Runtime Architecture). Reason for reopening: [Justification]*
-2. Do not silently override an ADR. Update the existing ADR status to "Substituído por ADR-XXXX" only after formal alignment.
+### Cross-reference with code
+
+When the user states how something works, check whether the code agrees. If you find a contradiction, surface it: "Your code cancels entire Orders, but you just said partial cancellation is possible. Which is right?"
+
+### Update CONTEXT.md inline
+
+When a term is resolved, update `CONTEXT.md` right there. Don't batch these up: capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
+
+`CONTEXT.md` should be totally devoid of implementation details. Do not treat `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
+
+### Offer ADRs sparingly
+
+Only offer to create an ADR when all three are true:
+
+1. **Hard to reverse**: the cost of changing your mind later is meaningful
+2. **Surprising without context**: a future reader will wonder "why did they do it this way?"
+3. **The result of a real trade-off**: there were genuine alternatives and you picked one for specific reasons
+
+If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).

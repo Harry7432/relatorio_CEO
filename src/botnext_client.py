@@ -3,6 +3,7 @@ from typing import Any
 
 import requests
 
+from src.runtime_security import OperationalErrorCategory, operational_error
 from src.config import (
     BOTNEXT_CHANNEL_IDS,
     BOTNEXT_CHAT_URL,
@@ -79,16 +80,10 @@ class BotNextClient:
         try:
             resposta.raise_for_status()
 
-        except requests.HTTPError as erro:
-            detalhes = resposta.text[:1000]
-
+        except requests.HTTPError:
             raise RuntimeError(
-                "Erro ao consultar o BotNext. "
-                f"Status: "
-                f"{resposta.status_code}. "
-                f"URL: {resposta.url}. "
-                f"Resposta: {detalhes}"
-            ) from erro
+                operational_error(OperationalErrorCategory.BOTNEXT)
+            ) from None
 
         return resposta.json()
 
