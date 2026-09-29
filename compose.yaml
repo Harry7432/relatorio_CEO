@@ -7,11 +7,11 @@ x-app: &app
       DEPENDENCY_LOCK_DIGEST: ${DEPENDENCY_LOCK_DIGEST:-local}
 
 x-runtime-process-contract:
-  role: "`api`, `worker_runner` ou `frontend`."
+  role: "`api`, `worker_runner`, `frontend` (Streamlit legado) ou `frontend-react`."
   container_command: "Comando long-lived do papel."
-  lifecycle: "`long_lived` para os tres containers."
+  lifecycle: "`long_lived` para todos os containers."
   restart_policy: "Reinicia somente o container do papel que encerrou."
-  exposed_port: "API e frontend usam porta interna; worker runner usa `null`."
+  exposed_port: "API, frontend e frontend-react usam porta interna/externa; worker runner usa `null`."
   required_configuration: "Apenas nomes das variaveis necessarias ao papel."
   state: "Estado operacional atual, nao persistido pela aplicacao."
 
@@ -48,6 +48,17 @@ services:
       BOTNEXT_TOKEN: ${BOTNEXT_TOKEN:-}
       DATABASE_URL: ${DATABASE_URL:-}
       DB_SCHEMA: ${DB_SCHEMA:-app}
+
+  frontend-react:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-/api/v1}
+    ports:
+      - "80:80"
+
   frontend:
     <<: *app
     command: python -m streamlit run app.py --server.address=0.0.0.0 --server.port=8501

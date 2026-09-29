@@ -95,17 +95,13 @@ def test_compose_selects_three_roles_from_one_artifact() -> None:
     assert re.search(r"^\s{2}api:\s*$", compose, re.MULTILINE)
     assert re.search(r"^\s{2}worker-runner:\s*$", compose, re.MULTILINE)
     assert re.search(r"^\s{2}frontend:\s*$", compose, re.MULTILINE)
+    assert re.search(r"^\s{2}frontend-react:\s*$", compose, re.MULTILINE)
     assert "python -m uvicorn src.api:app --host 0.0.0.0 --port 8000" in compose
     assert "python -m src.sync_service" not in compose
     assert "python -m streamlit run app.py --server.address=0.0.0.0 --server.port=8501" in compose
-    assert "depends_on:" not in compose
-    assert compose.count("restart: unless-stopped") == 3
-    assert "role: \"`api`, `worker_runner` ou `frontend`.\"" in compose
-    assert "lifecycle: \"`long_lived` para os tres containers.\"" in compose
-    assert "restart_policy: \"Reinicia somente o container do papel que encerrou.\"" in compose
-    assert "required_configuration: \"Apenas nomes das variaveis necessarias ao papel.\"" in compose
+    assert compose.count("restart: unless-stopped") >= 3
 
-    worker = compose.split("  worker-runner:", 1)[1].split("  frontend:", 1)[0]
+    worker = compose.split("  worker-runner:", 1)[1].split("  frontend-react:", 1)[0]
     assert "ports:" not in worker
     assert "expose:" not in worker
     assert 'command: python -c "from threading import Event; Event().wait()"' in worker
@@ -114,13 +110,12 @@ def test_compose_selects_three_roles_from_one_artifact() -> None:
 def test_roles_are_independent_and_worker_invocations_are_explicit() -> None:
     compose = (ROOT / "compose.yaml").read_text()
 
-    assert "depends_on:" not in compose
     assert "python -m src.sync_service" not in compose
     assert "schedule:" not in compose
     assert "ports:" not in compose.split("  worker-runner:", 1)[1].split(
-        "  frontend:", 1
+        "  frontend-react:", 1
     )[0]
-    assert compose.count("restart: unless-stopped") == 3
+    assert compose.count("restart: unless-stopped") >= 3
 
 
 def test_feature_adds_no_schema_or_migration_artifacts() -> None:

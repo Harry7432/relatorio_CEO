@@ -5,9 +5,10 @@
 `relatorio_CEO` é uma plataforma de inteligência e acompanhamento executivo comercial que consolida dados de atendimentos, sessões de chat, mensagens e métricas de vendedores a partir da plataforma BotNext (Hub de Comunicação). 
 
 O sistema expõe:
-1. **Frontend (Streamlit)**: Painel executivo interativo com visões por vendedor, canal e conversas.
-2. **API (FastAPI)**: Rotas mínimas de liveness (`GET /health`) e readiness com PostgreSQL (`GET /ready`).
+1. **Frontend (React + TypeScript)**: Painel executivo moderno de alta precisão (Linear Design System em `frontend/`), com visões por vendedor, gráficos Recharts, ranking em destaque, filtros e busca em tempo real de mensagens.
+2. **API (FastAPI)**: Rotas de liveness (`GET /health`), readiness (`GET /ready`) e os 5 endpoints de serviço de dados de leitura do dashboard (`/api/v1/dashboard/*`).
 3. **Worker (Python)**: Processo desacoplado responsável por executar a sincronização incremental dos dados (`python -m src.sync_service`).
+4. **Frontend Legado (Streamlit)**: Mantido apenas como opção legada/secundária em `app.py`.
 
 ---
 
@@ -16,7 +17,7 @@ O sistema expõe:
 - **Isolamento de Estado**: O banco de dados PostgreSQL é a fonte da verdade para leituras analíticas do dashboard.
 - **Redação de Dados Sensíveis**: Senhas, DSNs, telefones e conteúdos de mensagens são estritamente higienizados antes de qualquer exposição em logs, erros de API ou stdout/stderr.
 - **Imutabilidade de Schema**: Nenhuma alteração DDL ou adição de migration é permitida fora de especificações formais de banco de dados.
-- **Exclusão Mútua**: A ativação de tarefas agendadas de sincronização em ambiente produtivo requer controle de concorrência com o disparo manual.
+- **Desacoplamento de Sincronização**: O frontend React opera exclusivamente como consumidor de dados de leitura via FastAPI. O acionamento da sincronização permanece responsabilidade isolada do worker (`python -m src.sync_service`).
 
 ---
 

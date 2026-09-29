@@ -1,0 +1,98 @@
+import React, { useState } from 'react';
+import { LayoutDashboard, Users, MessageSquare, ChevronLeft, ChevronRight, BarChart3 } from 'lucide-react';
+
+interface SidebarProps {
+  activeTab: 'overview' | 'vendedores' | 'conversas';
+  setActiveTab: (tab: 'overview' | 'vendedores' | 'conversas') => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+  const [collapsed, setCollapsed] = useState(false);
+
+  const menuItems = [
+    {
+      id: 'overview' as const,
+      label: 'Visão Geral',
+      icon: LayoutDashboard,
+    },
+    {
+      id: 'vendedores' as const,
+      label: 'Vendedores',
+      icon: Users,
+    },
+    {
+      id: 'conversas' as const,
+      label: 'Conversas',
+      icon: MessageSquare,
+    },
+  ];
+
+  return (
+    <aside
+      className={`fixed left-0 top-0 bottom-0 z-30 bg-surface border-r border-border transition-all duration-200 flex flex-col justify-between ${
+        collapsed ? 'w-16' : 'w-56'
+      }`}
+    >
+      <div>
+        {/* Logo / Brand Header */}
+        <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="w-8 h-8 rounded-lg bg-linear-indigo/20 border border-linear-indigo/40 flex items-center justify-center text-linear-indigo shrink-0">
+              <BarChart3 className="w-5 h-5" />
+            </div>
+            {!collapsed && (
+              <span className="font-bold text-sm tracking-tight text-slate-100 truncate">
+                BotNext CEO
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-slate-400 hover:text-slate-200 p-1 rounded-md hover:bg-slate-800 transition-colors"
+            title={collapsed ? 'Expandir Sidebar' : 'Recolher Sidebar'}
+          >
+            {collapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+
+        {/* Navigation Items */}
+        <nav className="p-2 space-y-1 mt-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                  isActive
+                    ? 'bg-linear-indigo/15 text-linear-indigo border border-linear-indigo/30'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                }`}
+                title={collapsed ? item.label : undefined}
+              >
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-linear-indigo' : ''}`} />
+                {!collapsed && <span>{item.label}</span>}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Footer Info */}
+      <div className="p-3 border-t border-border">
+        {!collapsed ? (
+          <div className="text-[11px] text-slate-500 font-mono">
+            v1.0.0 • Linear UI
+          </div>
+        ) : (
+          <div className="w-2 h-2 rounded-full bg-status-success mx-auto" title="Sistema Operacional" />
+        )}
+      </div>
+    </aside>
+  );
+};
