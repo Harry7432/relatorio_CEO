@@ -39,14 +39,14 @@ export const KpiGrid: React.FC<KpiGridProps> = ({ metrics, isLoading }) => {
       value: metrics.total_contatos.toLocaleString('pt-BR'),
       subtitle: 'Clientes identificados',
       icon: Users,
-      color: 'text-teal-400 bg-teal-500/10 border-teal-500/20',
+      color: 'text-accent-teal bg-accent-teal/10 border-accent-teal/20',
     },
     {
       title: 'Contatos Identificados',
       value: `${metrics.percentual_contatos_identificados.toFixed(1).replace('.', ',')}%`,
       subtitle: 'Com vendedor atribuído',
       icon: UserCheck,
-      color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+      color: 'text-status-success-text bg-emerald-500/10 border-emerald-500/20',
     },
   ];
 

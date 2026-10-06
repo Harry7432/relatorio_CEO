@@ -1,12 +1,16 @@
 import React from 'react';
-import { Database, Clock } from 'lucide-react';
+import { Database, Clock, Sun, Moon } from 'lucide-react';
 import { Badge } from '../common/Badge';
+import { useTheme } from '../../theme/ThemeProvider';
 
 interface HeaderProps {
   lastUpdated?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({ lastUpdated }) => {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
     <header className="h-16 bg-surface border-b border-border px-6 flex items-center justify-between sticky top-0 z-20">
       <div>
@@ -29,6 +33,15 @@ export const Header: React.FC<HeaderProps> = ({ lastUpdated }) => {
             <span>Atualizado: {lastUpdated}</span>
           </div>
         )}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          aria-label={isDark ? 'Ativar tema claro' : 'Ativar tema escuro'}
+          title="Tema claro/escuro"
+          className="p-1.5 rounded-lg border border-border bg-slate-800/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800 transition-colors"
+        >
+          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </button>
       </div>
     </header>
   );

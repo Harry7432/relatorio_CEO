@@ -4,7 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class',
+  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
@@ -15,7 +15,11 @@ export default {
           500: 'rgb(var(--brand-500) / <alpha-value>)',
           300: 'rgb(var(--brand-300) / <alpha-value>)',
         },
+        accent: {
+          teal: 'rgb(var(--accent-teal) / <alpha-value>)',
+        },
         background: 'rgb(var(--bg) / <alpha-value>)',
+        sidebar: 'rgb(var(--sidebar) / <alpha-value>)',
         surface: {
           DEFAULT: 'rgb(var(--surface) / <alpha-value>)',
           elevated: 'rgb(var(--surface-2) / <alpha-value>)',
@@ -43,10 +47,13 @@ export default {
           bronze: '#D97706',
         },
         status: {
-          success: '#10B981',
-          warning: '#F59E0B',
-          danger: '#EF4444',
-          neutral: '#64748B',
+          success: 'rgb(var(--status-success) / <alpha-value>)',
+          'success-text': 'rgb(var(--status-success-text) / <alpha-value>)',
+          warning: 'rgb(var(--status-warning) / <alpha-value>)',
+          'warning-text': 'rgb(var(--status-warning-text) / <alpha-value>)',
+          danger: 'rgb(var(--status-danger) / <alpha-value>)',
+          'danger-text': 'rgb(var(--status-danger-text) / <alpha-value>)',
+          neutral: 'rgb(var(--status-neutral) / <alpha-value>)',
         },
       },
       fontFamily: {

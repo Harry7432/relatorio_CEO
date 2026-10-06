@@ -16,22 +16,16 @@ import {
 } from 'recharts';
 import { DashboardOverview } from '../../types/dashboard';
 import { ChartSkeleton } from '../common/Skeleton';
+import { useChartPalette } from '../../theme/chartPalette';
 
 interface ChartsGridProps {
   overview?: DashboardOverview;
   isLoading?: boolean;
 }
 
-const DONUT_COLORS = ['#24D4E0', '#1DADB8', '#7FE9F0', '#17878F', '#B4CFD0', '#105D62'];
-
-const STATUS_COLORS: Record<string, string> = {
-  COMPLETED: '#24D4E0',
-  IN_PROGRESS: '#2BA3A0',
-  HIDDEN: '#8FA9B8',
-  PENDING: '#F59E0B',
-};
-
 export const ChartsGrid: React.FC<ChartsGridProps> = ({ overview, isLoading }) => {
+  const palette = useChartPalette();
+
   if (isLoading || !overview) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -50,6 +44,14 @@ export const ChartsGrid: React.FC<ChartsGridProps> = ({ overview, isLoading }) =
     contatos_por_vendedor = [],
   } = overview;
 
+  const tooltipStyle = {
+    backgroundColor: palette.tooltipBg,
+    borderColor: palette.tooltipBorder,
+    borderRadius: '8px',
+    color: palette.tooltipText,
+    fontSize: '12px',
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* 1. Evolução Diária */}
@@ -60,25 +62,17 @@ export const ChartsGrid: React.FC<ChartsGridProps> = ({ overview, isLoading }) =
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={mensagens_por_dia}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#17464A" />
-              <XAxis dataKey="data" stroke="#8AAAAD" fontSize={11} />
-              <YAxis stroke="#8AAAAD" fontSize={11} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#0A3A3D',
-                  borderColor: '#17464A',
-                  borderRadius: '8px',
-                  color: '#F1F7F7',
-                  fontSize: '12px',
-                }}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke={palette.grid} />
+              <XAxis dataKey="data" stroke={palette.axis} fontSize={11} />
+              <YAxis stroke={palette.axis} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Line
                 type="monotone"
                 dataKey="mensagens"
                 name="Mensagens"
-                stroke="#24D4E0"
+                stroke={palette.series1}
                 strokeWidth={3}
-                dot={{ fill: '#24D4E0', r: 4 }}
+                dot={{ fill: palette.series1, r: 4 }}
                 activeDot={{ r: 6 }}
               />
             </LineChart>
@@ -94,19 +88,11 @@ export const ChartsGrid: React.FC<ChartsGridProps> = ({ overview, isLoading }) =
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={mensagens_por_tipo}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#17464A" />
-              <XAxis dataKey="tipo" stroke="#8AAAAD" fontSize={11} />
-              <YAxis stroke="#8AAAAD" fontSize={11} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#0A3A3D',
-                  borderColor: '#17464A',
-                  borderRadius: '8px',
-                  color: '#F1F7F7',
-                  fontSize: '12px',
-                }}
-              />
-              <Bar dataKey="quantidade" name="Quantidade" fill="#1DADB8" radius={[4, 4, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke={palette.grid} />
+              <XAxis dataKey="tipo" stroke={palette.axis} fontSize={11} />
+              <YAxis stroke={palette.axis} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Bar dataKey="quantidade" name="Quantidade" fill={palette.series2} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -133,19 +119,11 @@ export const ChartsGrid: React.FC<ChartsGridProps> = ({ overview, isLoading }) =
                 {sessoes_por_status.map((item, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={STATUS_COLORS[item.status] ?? DONUT_COLORS[index % DONUT_COLORS.length]}
+                    fill={palette.status[item.status] ?? palette.donut[index % palette.donut.length]}
                   />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#0A3A3D',
-                  borderColor: '#17464A',
-                  borderRadius: '8px',
-                  color: '#F1F7F7',
-                  fontSize: '12px',
-                }}
-              />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend
                 verticalAlign="bottom"
                 height={36}
@@ -173,19 +151,11 @@ export const ChartsGrid: React.FC<ChartsGridProps> = ({ overview, isLoading }) =
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={mensagens_por_canal}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#17464A" />
-              <XAxis dataKey="canal" stroke="#8AAAAD" fontSize={10} interval={0} />
-              <YAxis stroke="#8AAAAD" fontSize={11} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#0A3A3D',
-                  borderColor: '#17464A',
-                  borderRadius: '8px',
-                  color: '#F1F7F7',
-                  fontSize: '12px',
-                }}
-              />
-              <Bar dataKey="mensagens" name="Mensagens" fill="#24D4E0" radius={[4, 4, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke={palette.grid} />
+              <XAxis dataKey="canal" stroke={palette.axis} fontSize={10} interval={0} />
+              <YAxis stroke={palette.axis} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Bar dataKey="mensagens" name="Mensagens" fill={palette.series1} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -203,25 +173,17 @@ export const ChartsGrid: React.FC<ChartsGridProps> = ({ overview, isLoading }) =
               data={contatos_por_vendedor}
               margin={{ left: 40 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#17464A" />
-              <XAxis type="number" stroke="#8AAAAD" fontSize={11} />
+              <CartesianGrid strokeDasharray="3 3" stroke={palette.grid} />
+              <XAxis type="number" stroke={palette.axis} fontSize={11} />
               <YAxis
                 type="category"
                 dataKey="vendedor"
-                stroke="#8AAAAD"
+                stroke={palette.axis}
                 fontSize={11}
                 width={120}
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#0A3A3D',
-                  borderColor: '#17464A',
-                  borderRadius: '8px',
-                  color: '#F1F7F7',
-                  fontSize: '12px',
-                }}
-              />
-              <Bar dataKey="contatos" name="Contatos" fill="#7FE9F0" radius={[0, 4, 4, 0]} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Bar dataKey="contatos" name="Contatos" fill={palette.series3} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

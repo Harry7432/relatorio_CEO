@@ -28,7 +28,7 @@ export const SellerLeaderboard: React.FC<SellerLeaderboardProps> = ({
     if (posicao === 1) {
       return (
         <Badge variant="gold" className="gap-1">
-          <Trophy className="w-3 h-3 text-amber-300" />
+          <Trophy className="w-3 h-3" />
           1º Lugar
         </Badge>
       );
@@ -44,7 +44,7 @@ export const SellerLeaderboard: React.FC<SellerLeaderboardProps> = ({
     if (posicao === 3) {
       return (
         <Badge variant="bronze" className="gap-1">
-          <Medal className="w-3 h-3 text-amber-500" />
+          <Medal className="w-3 h-3" />
           3º Lugar
         </Badge>
       );
@@ -60,7 +60,7 @@ export const SellerLeaderboard: React.FC<SellerLeaderboardProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-amber-400" />
+            <Trophy className="w-5 h-5 text-status-warning-text" />
             <h2 className="text-base font-bold text-slate-100 tracking-tight">
               Ranking de Atendimento dos Vendedores
             </h2>

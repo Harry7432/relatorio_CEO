@@ -87,7 +87,7 @@ export const ConversationTable: React.FC<ConversationTableProps> = ({
             onClick={() => handleExport('xlsx')}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-border rounded-lg transition-colors"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+            <FileSpreadsheet className="w-3.5 h-3.5 text-status-success-text" />
             Baixar Excel
           </button>
         </div>
