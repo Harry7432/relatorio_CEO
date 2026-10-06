@@ -546,6 +546,9 @@ def get_dashboard_conversations(
         "sessao_id",
     ]
 
+    df_pagina["sessao_id"] = df_pagina["sessao_id"].map(
+        lambda v: None if v is None or pd.isna(v) else str(v)
+    )
     items = df_pagina[colunas_tabela].to_dict(orient="records")
 
     return JSONResponse(
