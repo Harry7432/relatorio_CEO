@@ -22,7 +22,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       {onResetFilters && (
         <button
           onClick={onResetFilters}
-          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-linear-indigo text-white rounded-lg hover:bg-linear-indigoHover transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-brand-700 text-white rounded-lg hover:ring-1 hover:ring-brand-300 transition-colors shadow-sm"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           Limpar Filtros

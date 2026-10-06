@@ -80,7 +80,7 @@ export const ConversationTable: React.FC<ConversationTableProps> = ({
             onClick={() => handleExport('csv')}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-border rounded-lg transition-colors"
           >
-            <FileText className="w-3.5 h-3.5 text-sky-400" />
+            <FileText className="w-3.5 h-3.5 text-brand-500" />
             Baixar CSV
           </button>
           <button
@@ -127,27 +127,29 @@ export const ConversationTable: React.FC<ConversationTableProps> = ({
                 <td className="py-3 px-3 font-mono text-slate-300 whitespace-nowrap">
                   {item.timestamp_mensagem}
                 </td>
-                <td className="py-3 px-3 font-medium text-slate-200 whitespace-nowrap">
-                  <div>{item.vendedor_responsavel}</div>
-                  <div className="text-[10px] text-slate-500">{item.origem_vendedor}</div>
+                <td className="py-3 px-3 font-medium text-slate-200 max-w-[160px]">
+                  <div className="truncate" title={item.vendedor_responsavel}>{item.vendedor_responsavel}</div>
+                  <div className="text-[10px] text-slate-500 truncate">{item.origem_vendedor}</div>
                 </td>
-                <td className="py-3 px-3 whitespace-nowrap">
-                  <div className="font-medium text-slate-200">{item.contato_nome}</div>
+                <td className="py-3 px-3 max-w-[200px]">
+                  <div className="font-medium text-slate-200 truncate" title={item.contato_nome}>{item.contato_nome}</div>
                   <div className="text-[10px] font-mono text-slate-400">{item.telefone_formatado}</div>
                 </td>
                 <td className="py-3 px-3 text-slate-300 max-w-[140px] truncate">
                   {item.canal}
                 </td>
-                <td className="py-3 px-3 whitespace-nowrap space-x-1 space-y-1">
-                  <Badge variant={item.status_sessao === 'CLOSED' ? 'neutral' : 'success'}>
-                    {item.status_sessao}
-                  </Badge>
-                  <Badge variant="neutral">{item.tipo_mensagem}</Badge>
-                  <Badge variant={item.direcao === 'TO_HUB' ? 'success' : 'warning'}>
-                    {item.direcao}
-                  </Badge>
+                <td className="py-3 px-3">
+                  <div className="flex flex-wrap gap-1 max-w-[190px]">
+                    <Badge variant={item.status_sessao === 'CLOSED' ? 'neutral' : 'success'}>
+                      {item.status_sessao}
+                    </Badge>
+                    <Badge variant="neutral">{item.tipo_mensagem}</Badge>
+                    <Badge variant={item.direcao === 'TO_HUB' ? 'success' : 'warning'}>
+                      {item.direcao}
+                    </Badge>
+                  </div>
                 </td>
-                <td className="py-3 px-3 text-slate-300 max-w-xs truncate" title={item.texto}>
+                <td className="py-3 px-3 text-slate-300 max-w-[220px] truncate" title={item.texto}>
                   {item.texto || <span className="italic text-slate-500">(Sem texto)</span>}
                 </td>
               </tr>

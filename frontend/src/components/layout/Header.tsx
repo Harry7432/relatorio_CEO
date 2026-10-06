@@ -11,7 +11,7 @@ export const Header: React.FC<HeaderProps> = ({ lastUpdated }) => {
     <header className="h-16 bg-surface border-b border-border px-6 flex items-center justify-between sticky top-0 z-20">
       <div>
         <h1 className="text-lg font-bold text-slate-100 tracking-tight">
-          Relatório Comercial BotNext
+          Falavinha Next Relatório BotNext
         </h1>
         <p className="text-xs text-slate-400 hidden sm:block">
           Acompanhamento executivo de contatos, conversas e desempenho dos vendedores.

@@ -2,10 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tokens da marca Falavinha Next. Valores em RGB para permitir opacidade (bg-brand-700/20). */
+:root {
+  --brand-900: 10 58 61;   /* #0A3A3D: sidebar e cards */
+  --brand-700: 16 93 98;   /* #105D62: marca principal, botões primários */
+  --brand-600: 23 135 143; /* #17878F: hover e ícones */
+  --brand-500: 29 173 184; /* #1DADB8: acento, links */
+  --brand-300: 36 212 224; /* #24D4E0: destaque, números, séries, foco */
+
+  --bg: 7 26 28;           /* #071A1C: fundo da página */
+  --surface: 10 58 61;     /* #0A3A3D */
+  --surface-2: 14 68 72;   /* #0E4448: elevado e hover */
+  --border: 23 70 74;      /* #17464A */
+
+  --slate-50: 241 247 247;
+  --slate-100: 225 238 238;
+  --slate-200: 207 227 227;
+  --slate-300: 180 207 208;
+  --slate-400: 156 189 191;
+  --slate-500: 146 179 182;
+  --slate-600: 94 129 132;
+  --slate-700: 44 90 94;
+  --slate-800: 14 68 72;
+  --slate-900: 6 36 38;
+  --slate-950: 4 23 24;
+}
+
 @layer base {
   body {
-    background-color: #0B0E14;
-    color: #F8FAFC;
+    background-color: rgb(var(--bg));
+    color: rgb(var(--slate-100));
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--brand-300));
+    outline-offset: 2px;
   }
 }
 
@@ -16,14 +47,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B0E14;
+  background: rgb(var(--bg));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2A3447;
+  background: rgb(var(--border));
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: rgb(var(--slate-600));
 }

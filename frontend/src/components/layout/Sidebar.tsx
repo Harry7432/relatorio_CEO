@@ -35,20 +35,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     >
       <div>
         {/* Logo / Brand Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-border">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-8 h-8 rounded-lg bg-linear-indigo/20 border border-linear-indigo/40 flex items-center justify-center text-linear-indigo shrink-0">
-              <BarChart3 className="w-5 h-5" />
-            </div>
-            {!collapsed && (
-              <span className="font-bold text-sm tracking-tight text-slate-100 truncate">
-                BotNext CEO
+        <div className="min-h-[4rem] flex items-center justify-between gap-2 px-3 py-3 border-b border-border">
+          {collapsed ? (
+            <img
+              src="/brand/icon-x-white.png"
+              alt="Falavinha Next"
+              className="w-8 h-8 mx-auto object-contain"
+            />
+          ) : (
+            <div className="flex flex-col gap-2 min-w-0 flex-1">
+              <div className="rounded-lg bg-slate-50 p-3">
+                <img
+                  src="/brand/logo-falavinha-next.svg"
+                  alt="Falavinha Next"
+                  className="w-full h-auto"
+                />
+              </div>
+              <span className="text-[11px] font-semibold tracking-tight text-slate-300 truncate">
+                Falavinha Next Relatório BotNext
               </span>
-            )}
-          </div>
+            </div>
+          )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="text-slate-400 hover:text-slate-200 p-1 rounded-md hover:bg-slate-800 transition-colors"
+            className="text-slate-400 hover:text-slate-100 p-1 rounded-md hover:bg-slate-800 transition-colors shrink-0"
             title={collapsed ? 'Expandir Sidebar' : 'Recolher Sidebar'}
           >
             {collapsed ? (
@@ -70,12 +80,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-linear-indigo/15 text-linear-indigo border border-linear-indigo/30'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                    ? 'bg-brand-700/25 text-brand-300 border border-brand-700'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
                 }`}
                 title={collapsed ? item.label : undefined}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-linear-indigo' : ''}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-brand-300' : ''}`} />
                 {!collapsed && <span>{item.label}</span>}
               </button>
             );
@@ -87,7 +97,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
       <div className="p-3 border-t border-border">
         {!collapsed ? (
           <div className="text-[11px] text-slate-500 font-mono">
-            v1.0.0 • Linear UI
+            v1.0.0 • Falavinha Next
           </div>
         ) : (
           <div className="w-2 h-2 rounded-full bg-status-success mx-auto" title="Sistema Operacional" />

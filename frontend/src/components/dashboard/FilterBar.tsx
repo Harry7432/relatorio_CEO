@@ -37,7 +37,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     <div className="bg-surface border border-border rounded-xl p-4 shadow-sm space-y-4">
       <div className="flex items-center justify-between pb-3 border-b border-border/60">
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-linear-indigo" />
+          <Filter className="w-4 h-4 text-brand-300" />
           <h3 className="text-sm font-semibold text-slate-200">
             Filtros do Relatório
           </h3>
@@ -63,7 +63,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             max={options?.data_maxima}
             value={filters.data_inicial || ''}
             onChange={(e) => handleChange('data_inicial', e.target.value || undefined)}
-            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-linear-indigo"
+            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-brand-300"
           />
         </div>
 
@@ -77,7 +77,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             max={options?.data_maxima}
             value={filters.data_final || ''}
             onChange={(e) => handleChange('data_final', e.target.value || undefined)}
-            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-linear-indigo"
+            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-brand-300"
           />
         </div>
 
@@ -90,7 +90,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             multiple
             value={filters.vendedores || []}
             onChange={(e) => handleMultiSelect('vendedores', e)}
-            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-linear-indigo h-16"
+            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-brand-300 h-16"
           >
             {options?.vendedores.map((v) => (
               <option key={v} value={v}>
@@ -110,7 +110,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             multiple
             value={filters.canais || []}
             onChange={(e) => handleMultiSelect('canais', e)}
-            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-linear-indigo h-16"
+            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-brand-300 h-16"
           >
             {options?.canais.map((c) => (
               <option key={c} value={c}>
@@ -129,7 +129,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             multiple
             value={filters.status_sessao || []}
             onChange={(e) => handleMultiSelect('status_sessao', e)}
-            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-linear-indigo h-16"
+            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-brand-300 h-16"
           >
             {options?.status_sessao.map((s) => (
               <option key={s} value={s}>
@@ -148,7 +148,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             multiple
             value={filters.tipos_mensagem || []}
             onChange={(e) => handleMultiSelect('tipos_mensagem', e)}
-            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-linear-indigo h-16"
+            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-brand-300 h-16"
           >
             {options?.tipos_mensagem.map((t) => (
               <option key={t} value={t}>
@@ -167,7 +167,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             multiple
             value={filters.direcoes || []}
             onChange={(e) => handleMultiSelect('direcoes', e)}
-            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-linear-indigo h-16"
+            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-brand-300 h-16"
           >
             {options?.direcoes.map((d) => (
               <option key={d} value={d}>
@@ -186,7 +186,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             multiple
             value={filters.origens_vendedor || []}
             onChange={(e) => handleMultiSelect('origens_vendedor', e)}
-            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-linear-indigo h-16"
+            className="w-full bg-slate-900 border border-border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-brand-300 h-16"
           >
             {options?.origens_vendedor.map((o) => (
               <option key={o} value={o}>
@@ -206,7 +206,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             placeholder="Pesquisar cliente ou telefone..."
             value={filters.search_cliente || ''}
             onChange={(e) => handleChange('search_cliente', e.target.value || undefined)}
-            className="w-full bg-slate-900 border border-border rounded-lg pl-9 pr-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-linear-indigo"
+            className="w-full bg-slate-900 border border-border rounded-lg pl-9 pr-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-300"
           />
         </div>
 
@@ -217,7 +217,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             placeholder="Pesquisar no texto da mensagem..."
             value={filters.search_mensagem || ''}
             onChange={(e) => handleChange('search_mensagem', e.target.value || undefined)}
-            className="w-full bg-slate-900 border border-border rounded-lg pl-9 pr-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-linear-indigo"
+            className="w-full bg-slate-900 border border-border rounded-lg pl-9 pr-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-300"
           />
         </div>
       </div>

@@ -8,20 +8,38 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#0B0E14',
+        brand: {
+          900: 'rgb(var(--brand-900) / <alpha-value>)',
+          700: 'rgb(var(--brand-700) / <alpha-value>)',
+          600: 'rgb(var(--brand-600) / <alpha-value>)',
+          500: 'rgb(var(--brand-500) / <alpha-value>)',
+          300: 'rgb(var(--brand-300) / <alpha-value>)',
+        },
+        background: 'rgb(var(--bg) / <alpha-value>)',
         surface: {
-          DEFAULT: '#131822',
-          elevated: '#1C2333',
+          DEFAULT: 'rgb(var(--surface) / <alpha-value>)',
+          elevated: 'rgb(var(--surface-2) / <alpha-value>)',
         },
         border: {
-          DEFAULT: '#2A3447',
-          focus: '#6366F1',
+          DEFAULT: 'rgb(var(--border) / <alpha-value>)',
+          focus: 'rgb(var(--brand-300) / <alpha-value>)',
         },
-        linear: {
-          indigo: '#6366F1',
-          indigoHover: '#4F46E5',
+        slate: {
+          50: 'rgb(var(--slate-50) / <alpha-value>)',
+          100: 'rgb(var(--slate-100) / <alpha-value>)',
+          200: 'rgb(var(--slate-200) / <alpha-value>)',
+          300: 'rgb(var(--slate-300) / <alpha-value>)',
+          400: 'rgb(var(--slate-400) / <alpha-value>)',
+          500: 'rgb(var(--slate-500) / <alpha-value>)',
+          600: 'rgb(var(--slate-600) / <alpha-value>)',
+          700: 'rgb(var(--slate-700) / <alpha-value>)',
+          800: 'rgb(var(--slate-800) / <alpha-value>)',
+          900: 'rgb(var(--slate-900) / <alpha-value>)',
+          950: 'rgb(var(--slate-950) / <alpha-value>)',
+        },
+        medal: {
           gold: '#F59E0B',
-          silver: '#94A3B8',
+          silver: '#B4CFD0',
           bronze: '#D97706',
         },
         status: {

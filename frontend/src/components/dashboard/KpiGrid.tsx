@@ -25,14 +25,14 @@ export const KpiGrid: React.FC<KpiGridProps> = ({ metrics, isLoading }) => {
       value: metrics.total_mensagens.toLocaleString('pt-BR'),
       subtitle: 'Total no período selecionado',
       icon: MessageSquare,
-      color: 'text-linear-indigo bg-linear-indigo/10 border-linear-indigo/20',
+      color: 'text-brand-300 bg-brand-700/25 border-brand-700',
     },
     {
       title: 'Conversas / Sessões',
       value: metrics.total_sessoes.toLocaleString('pt-BR'),
       subtitle: 'Atendimentos únicos',
       icon: MessagesSquare,
-      color: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
+      color: 'text-brand-500 bg-brand-500/10 border-brand-500/20',
     },
     {
       title: 'Contatos',

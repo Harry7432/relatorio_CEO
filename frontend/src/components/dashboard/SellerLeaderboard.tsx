@@ -53,9 +53,9 @@ export const SellerLeaderboard: React.FC<SellerLeaderboardProps> = ({
   };
 
   return (
-    <div className="bg-surface border border-linear-indigo/40 rounded-xl p-5 shadow-lg relative overflow-hidden">
+    <div className="bg-surface border border-brand-700 rounded-xl p-5 shadow-lg relative overflow-hidden">
       {/* Background Subtle Accent Glow */}
-      <div className="absolute -top-12 -right-12 w-48 h-48 bg-linear-indigo/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-12 -right-12 w-48 h-48 bg-brand-700/25 rounded-full blur-3xl pointer-events-none" />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div>
@@ -71,7 +71,7 @@ export const SellerLeaderboard: React.FC<SellerLeaderboardProps> = ({
         </div>
         <div className="text-right">
           <div className="text-xs font-mono text-slate-400">Total Enviado</div>
-          <div className="text-lg font-bold font-mono text-linear-indigo">
+          <div className="text-lg font-bold font-mono text-brand-300">
             {totalVendedoresMensagens.toLocaleString('pt-BR')} msgs
           </div>
         </div>
@@ -112,7 +112,7 @@ export const SellerLeaderboard: React.FC<SellerLeaderboardProps> = ({
                       <span className="font-mono text-slate-300 w-12 text-right">
                         {item.participacao_percentual.toFixed(1).replace('.', ',')}%
                       </span>
-                      <div className="w-24 bg-slate-800 rounded-full h-2 overflow-hidden border border-border/50">
+                      <div className="w-24 bg-slate-700 rounded-full h-2 overflow-hidden border border-border/50">
                         <div
                           className={`h-full rounded-full ${
                             item.posicao === 1
@@ -121,9 +121,14 @@ export const SellerLeaderboard: React.FC<SellerLeaderboardProps> = ({
                               ? 'bg-slate-300'
                               : item.posicao === 3
                               ? 'bg-amber-600'
-                              : 'bg-linear-indigo'
+                              : 'bg-brand-500'
                           }`}
-                          style={{ width: `${Math.min(100, item.participacao_percentual)}%` }}
+                          style={{
+                            width:
+                              item.participacao_percentual > 0
+                                ? `max(4px, ${Math.min(100, item.participacao_percentual)}%)`
+                                : '0px',
+                          }}
                         />
                       </div>
                     </div>
